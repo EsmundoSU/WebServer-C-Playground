@@ -3,4 +3,9 @@ project(WebServer_C_Playground C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(WebServer_C_Playground main.c)
+# Logger include directory
+include_directories(libs/Logger)
+
+add_executable(trick-webserver
+        core/src/main.c
+        libs/Logger/src/logger.c)
