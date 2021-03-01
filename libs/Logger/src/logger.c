@@ -24,6 +24,7 @@ void log_base(LoggerLevel loggerLevel, const char* fileName, int fileLine, const
 		va_start(args, format);
 		vprintf(format, args);
 		va_end(args);
+		printf("\n");
 	}
 }
 

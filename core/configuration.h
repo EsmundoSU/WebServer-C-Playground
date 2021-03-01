@@ -1,0 +1,9 @@
+#ifndef WEBSERVER_C_PLAYGROUND_CONFIGURATION_H
+#define WEBSERVER_C_PLAYGROUND_CONFIGURATION_H
+
+//! Server default listening port.
+#define DEFAULT_PORT "8080"
+//! @todo Write description.
+#define DEFAULT_BUFFER_LENGTH 512
+
+#endif //WEBSERVER_C_PLAYGROUND_CONFIGURATION_H
