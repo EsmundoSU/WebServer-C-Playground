@@ -8,8 +8,8 @@ include_directories(core)
 include_directories(core/include)
 # Logger include directory
 include_directories(libs/Logger)
-# TCP Library include directory
-include_directories(libs/tcp)
+# Server staff include directory
+include_directories(libs/Server)
 
 # C Compiler flags
 SET(CMAKE_C_FLAGS "-Ofast -Wall -Wextra -Wpedantic")
@@ -17,7 +17,7 @@ SET(CMAKE_C_FLAGS "-Ofast -Wall -Wextra -Wpedantic")
 add_executable(trick-webserver
         core/src/main.c
         libs/Logger/src/logger.c
-        libs/tcp/src/tcp.c)
+        libs/Server/src/server.c)
 if(WIN32)
     target_link_libraries(trick-webserver wsock32 ws2_32)
 endif()
