@@ -1,23 +1,19 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <stdio.h>
 #include "server.h"
 #include "logger.h"
 
-ServerConfiguration ServerConfigurationDefault = { DEFAULT_PORT };
+const char * const SERVER_PARAM_LIST = "p:l:";
 
-//! Socket information type.
-static WSADATA socketInformation;
-//! Socket to connect to server.
-static SOCKET serverListenSocket = INVALID_SOCKET;
-//! Host address information (pointer).
-static PADDRINFOA serverAddressInformation;
+ServerConfiguration ServerConfigurationDefault;
+
 //! Client socket
 static SOCKET clientSocket = INVALID_SOCKET;
 
-//! Initialize socket for client-server communication.
-static int SocketInitialization(void);
-//! Creates new server socket.
-static int CreateSocket(ServerConfiguration serverConfiguration);
+//! Opens index file for sending via socket.
+static int OpenIndexFile(void);
+
 //! Bind server socket
 static int BindSocket();
 //! Listen on the socket
@@ -103,170 +99,9 @@ int ReceiveData(void* buffer, size_t length)
 	return 0;
 }
 
-static int SocketInitialization(void)
-{
-	// Gets socket information.
-	int response = WSAStartup(DEFAULT_WINDOWS_SOCKET_VERSION, &socketInformation);
-	switch (response)
-	{
-	case 0:
-		log_debug("Correct initialization use of the Winsock DLL by this process");
-		break;
-	case WSASYSNOTREADY:
-		log_fatal("The underlying network subsystem is not ready for network communication.");
-		break;
-	case WSAVERNOTSUPPORTED:
-		log_fatal("The version of Windows Sockets support requested is not provided by this particular Windows "
-		          "Sockets implementation.");
-		break;
-	case WSAEINPROGRESS:
-		log_fatal("A blocking Windows Sockets 1.1 operation is in progress.");
-		break;
-	case WSAEPROCLIM:
-		log_fatal("A limit on the number of tasks supported by the Windows Sockets implementation has been reached.");
-		break;
-	case WSAEFAULT:
-		log_fatal("The lpWSAData parameter is not a valid pointer.");
-		break;
-	default:
-		log_debug("Unknown ERROR");
-		break;
-	}
 
-	return response;
-}
 
-static int CreateSocket(ServerConfiguration serverConfiguration)
-{
-	int response;
-	ADDRINFOA hints;
 
-	ZeroMemory(&hints, sizeof (hints));
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-	hints.ai_flags = AI_PASSIVE;
-
-	// Resolve the local address and port to be used by the server
-	response = getaddrinfo(
-			NULL,
-			serverConfiguration.pPort,
-			&hints,
-			&serverAddressInformation);
-	switch (response)
-	{
-	case 0:
-		log_debug("Successfully response from \"getaddreinfo\"");
-		break;
-	case EAI_AGAIN:
-		log_fatal("A temporary failure in name resolution occurred.");
-		break;
-	case EAI_BADFLAGS:
-		log_fatal("An invalid value was provided for the ai_flags member of the pHints parameter.");
-		break;
-	case EAI_FAIL:
-		log_fatal("A nonrecoverable failure in name resolution occurred.");
-		break;
-	case EAI_FAMILY:
-		log_fatal("The ai_family member of the pHints parameter is not supported.");
-		break;
-	case EAI_MEMORY:
-		log_fatal("A memory allocation failure occurred.");
-		break;
-	case EAI_NONAME:
-		log_fatal("The name does not resolve for the supplied parameters or the pNodeName and pServiceName parameters "
-			"were not provided.");
-		break;
-	case EAI_SERVICE:
-		log_fatal("The pServiceName parameter is not supported for the specified ai_socktype member of the pHints "
-			"parameter.");
-		break;
-	case EAI_SOCKTYPE:
-		log_fatal("The ai_socktype member of the pHints parameter is not supported.");
-		break;
-	default:
-		log_fatal("Unknown Error");
-		break;
-	}
-
-	if (response != 0)
-	{
-		WSACleanup();
-		return response;
-	}
-
-	// Create a SOCKET for the server to listen for client connections
-	serverListenSocket = socket(
-			serverAddressInformation->ai_family,
-			serverAddressInformation->ai_socktype,
-			serverAddressInformation->ai_protocol);
-
-	if (serverListenSocket == INVALID_SOCKET)
-	{
-		// Gets last error
-		int error = WSAGetLastError();
-		switch (error)
-		{
-		case WSANOTINITIALISED:
-			log_fatal("A successful WSAStartup call must occur before using this function.");
-			break;
-		case WSAENETDOWN:
-			log_fatal("The network subsystem or the associated service provider has failed.");
-			break;
-		case WSAEAFNOSUPPORT:
-			log_fatal("The specified address family is not supported. For example, an application tried to create a "
-			          "socket for the AF_IRDA address family but an infrared adapter and device driver is not installed on "
-			          "the local computer.");
-			break;
-		case WSAEINPROGRESS:
-			log_fatal("A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing "
-			          "a callback function.");
-			break;
-		case WSAEMFILE:
-			log_fatal("No more socket descriptors are available.");
-			break;
-		case WSAEINVAL:
-			log_fatal("An invalid argument was supplied. This error is returned if the af parameter is set to "
-			          "AF_UNSPEC and the type and protocol parameter are unspecified.");
-			break;
-		case WSAEINVALIDPROVIDER:
-			log_fatal("The service provider returned a version other than 2.2.");
-			break;
-		case WSAEINVALIDPROCTABLE:
-			log_fatal("The service provider returned an invalid or incomplete procedure table to the WSPStartup.");
-			break;
-		case WSAENOBUFS:
-			log_fatal("No buffer space is available. The socket cannot be created.");
-			break;
-		case WSAEPROTONOSUPPORT:
-			log_fatal("The specified protocol is not supported.");
-			break;
-		case WSAEPROTOTYPE:
-			log_fatal("The specified protocol is the wrong type for this socket.");
-			break;
-		case WSAEPROVIDERFAILEDINIT:
-			log_fatal("The service provider failed to initialize. This error is returned if a layered service "
-			          "provider (LSP) or namespace provider was improperly installed or the provider fails to operate "
-			          "correctly.");
-			break;
-		case WSAESOCKTNOSUPPORT:
-			log_fatal("The specified socket type is not supported in this address family.");
-			break;
-		default:
-			log_fatal("Unknown error of ID:\t%d", error);
-		}
-
-		freeaddrinfo(serverAddressInformation);
-		WSACleanup();
-		return error;
-	}
-	else
-	{
-		log_debug("Server socket created successfully");
-	}
-
-	return response;
-}
 
 int BindSocket()
 {
@@ -465,5 +300,11 @@ int AcceptClientConnection()
 	{
 		log_debug("Client connection accepted and socket created");
 	}
+	return 0;
+}
+
+int OpenIndexFile(void)
+{
+	FILE* indexPtr = fopen(serverCo)
 	return 0;
 }

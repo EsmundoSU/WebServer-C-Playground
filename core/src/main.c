@@ -1,6 +1,7 @@
-#include <winsock2.h>
-#include <ws2tcpip.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "server.h"
 #include "configuration.h"
@@ -12,22 +13,10 @@ int main()
 	log_enable(LOG_ENABLE);
 	log_set_level(LOG_DEBUG);
 
-	int response; // Buffer for functions responses
+	// Starts server and listening
+	StartServer(serverConfiguration);
 
-	log_info("WebServer is starting...");
 
-	ServerConfiguration serverConfiguration = ServerConfigurationDefault;
-	response = StartServer(serverConfiguration);
-
-	if(response != 0)
-	{
-		return 1;
-	}
-
-	char recvbuf[DEFAULT_BUFFER_LENGTH];
-	int recvbuflen = DEFAULT_BUFFER_LENGTH;
-
-	ReceiveData(recvbuf, recvbuflen);
 
 	return 0;
 }
