@@ -23,8 +23,8 @@ extern ServerConfiguration ServerConfigurationDefault;
 
 //! @brief Starts HTTP Server
 //! @return OK - Successful, #ServerError if not.
-ServerError StartServer(ServerConfiguration serverConfiguration);
+int ServerStart();
 
-int ReceiveData(void* buffer, size_t length);
+int ServerRun();
 
 #endif //WEBSERVER_C_PLAYGROUND_SERVER_H

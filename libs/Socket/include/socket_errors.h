@@ -7,12 +7,14 @@ enum SocketError{
 	SocketOk = 0,
 	//! Socket initialization error.
 	SocketErrorInitialization,
+	//! Socket error address get.
+	SocketErrorAddressData,
 	//! Socket creation error.
 	SocketErrorCreation,
 	//! Server could not bind.
 	SocketErrorBinding,
 	//! Server could not start listening using socket.
-	SocketErrorStartListening,
+	SocketErrorListening,
 	//! Server could not accept client connection and create socket.
 	ClientConnectionNotAccepted,
 };
