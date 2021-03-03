@@ -92,21 +92,21 @@ int SocketListen(const SOCKET *hSocket)
 	return 0;
 }
 
-//int SocketWaitForConnection(const SOCKET *hListeningSocket, SOCKET *hClientSocket)
-//{
-//	*hClientSocket = accept(*hListeningSocket, NULL, NULL);
-//	if (*hClientSocket == INVALID_SOCKET)
-//	{
-//		int errorCode = WSAGetLastError();
-//		log_fatal("\"accept\" failed with error code:\t%d", errorCode);
-//		closesocket(*hListeningSocket);
-//		WSACleanup();
-//		return errorCode;
-//	}
-//
-//	log_debug("accept- successful");
-//	return 0;
-//}
+int SocketWaitForConnection(const SOCKET *hListeningSocket, SOCKET *hClientSocket)
+{
+	*hClientSocket = accept(*hListeningSocket, NULL, NULL);
+	if (*hClientSocket == INVALID_SOCKET)
+	{
+		int errorCode = WSAGetLastError();
+		log_fatal("\"accept\" failed with error code:\t%d", errorCode);
+		closesocket(*hListeningSocket);
+		WSACleanup();
+		return errorCode;
+	}
+
+	log_debug("accept- successful");
+	return 0;
+}
 
 int main()
 {
@@ -143,20 +143,9 @@ int main()
 
 	while (TRUE)
 	{
-//		clientSocket = SocketWaitForConnection(&serverSocket, NULL);
-//		if (INVALID_SOCKET == clientSocket)
-//		{
-//			exit(EXIT_FAILURE);
-//		}
-
-		clientSocket = accept(serverSocket, NULL, NULL);
-		if (clientSocket == INVALID_SOCKET)
+		if (SocketWaitForConnection(&serverSocket, &clientSocket) != 0)
 		{
-			int errorCode = WSAGetLastError();
-			log_fatal("\"accept\" failed with error code:\t%d", errorCode);
-			closesocket(clientSocket);
-			WSACleanup();
-			return errorCode;
+			exit(EXIT_FAILURE);
 		}
 
 		int sendBufferSize = sizeof(sendBuffer) / sizeof(sendBuffer[0]);
