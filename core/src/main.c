@@ -149,9 +149,9 @@ int main()
 	log_enable(LOG_ENABLE);
 	log_set_level(LOG_DEBUG);
 
-	const char sendBuffer[] = "HTTP/1.1 200 Okay\r\nContent-Type: text/html; charset=ISO-8859-1 \r\n\r\n"
-	                          "<h1>HelloWorld!</h1><p>Adam Pelc2</p>";
-	int sendBufferSize = sizeof(sendBuffer) / sizeof(sendBuffer[0]);
+//	const char sendBuffer[] = "HTTP/1.1 200 Okay\r\nContent-Type: text/html; charset=ISO-8859-1 \r\n\r\n"
+//	                          "<h1>HelloWorld!</h1><p>Adam Pelc2</p>";
+	//int sendBufferSize = sizeof(sendBuffer) / sizeof(sendBuffer[0]);
 
 	SOCKET clientSocket = INVALID_SOCKET;
 	//! Server socket
@@ -175,6 +175,9 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
+	const char header[] = "HTTP/1.1 200 Okay\r\nContent-Type: text/html; charset=ISO-8859-1 \r\n\r\n";
+	const int headerSize = sizeof(header) / sizeof(header[0]);
+
 	while (TRUE)
 	{
 		if (SocketWaitForConnection(&serverSocket, &clientSocket) != 0)
@@ -182,7 +185,27 @@ int main()
 			exit(EXIT_FAILURE);
 		}
 
-		if (SocketSend(&clientSocket, sendBuffer, sendBufferSize) != 0)
+		FILE *pFile;
+		pFile = fopen("index.html", "r");
+		if (pFile == NULL)
+		{
+			log_fatal("Could not find \"index.html\"");
+			exit(EXIT_FAILURE);
+		}
+		fseek(pFile, 0, SEEK_END);
+		long fileSize = ftell(pFile);
+		fseek(pFile, 0, SEEK_SET);  /* same as rewind(pFile); */
+
+		char *fileData = malloc(fileSize);
+		fread(fileData, 1, fileSize, pFile);
+		fclose(pFile);
+
+		if (SocketSend(&clientSocket, header, headerSize) != 0)
+		{
+			exit(EXIT_FAILURE);
+		}
+
+		if (SocketSend(&clientSocket, fileData, fileSize) != 0)
 		{
 			exit(EXIT_FAILURE);
 		}
