@@ -126,9 +126,21 @@ int SocketSend(const SOCKET *hTargetSocket, const char* sendBuffer, int sendBuff
 	return 0;
 }
 
-int SocketDisconnect(SOCKET *hTargetSocket)
+int SocketDisconnect(const SOCKET *hTargetSocket)
 {
+	// Disconnects client socket from server
+	int response = shutdown(*hTargetSocket, SD_SEND);
+	if (response == SOCKET_ERROR)
+	{
+		int errorCode = WSAGetLastError();
+		log_fatal("shutdown failed with error code:\t%d", errorCode);
+		closesocket(*hTargetSocket);
+		WSACleanup();
+		return errorCode;
+	}
+	log_debug("Client socket disconnected");
 
+	return 0;
 }
 
 int main()
@@ -138,7 +150,7 @@ int main()
 	log_set_level(LOG_DEBUG);
 
 	const char sendBuffer[] = "HTTP/1.1 200 Okay\r\nContent-Type: text/html; charset=ISO-8859-1 \r\n\r\n"
-	                          "<h1>HelloWorld!</h1><p>Adam Pelc</p>";
+	                          "<h1>HelloWorld!</h1><p>Adam Pelc2</p>";
 	int sendBufferSize = sizeof(sendBuffer) / sizeof(sendBuffer[0]);
 
 	SOCKET clientSocket = INVALID_SOCKET;
@@ -163,8 +175,6 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
-	int result;
-
 	while (TRUE)
 	{
 		if (SocketWaitForConnection(&serverSocket, &clientSocket) != 0)
@@ -177,17 +187,10 @@ int main()
 			exit(EXIT_FAILURE);
 		}
 
-		// Disconnects client socket from server
-		result = shutdown(clientSocket, SD_SEND);
-		if (result == SOCKET_ERROR)
+		if (SocketDisconnect(&clientSocket) != 0)
 		{
-			log_fatal("shutdown failed with error code:\t%d", WSAGetLastError());
-			closesocket(clientSocket);
-			closesocket(serverSocket);
-			WSACleanup();
 			exit(EXIT_FAILURE);
 		}
-		log_debug("Client socket disconnected");
 	}
 
 	// Clean up data
