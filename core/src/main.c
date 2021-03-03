@@ -108,6 +108,29 @@ int SocketWaitForConnection(const SOCKET *hListeningSocket, SOCKET *hClientSocke
 	return 0;
 }
 
+int SocketSend(const SOCKET *hTargetSocket, const char* sendBuffer, int sendBufferLength)
+{
+
+	int response = send(*hTargetSocket, sendBuffer, sendBufferLength, 0);
+	if (response == SOCKET_ERROR)
+	{
+		int errorCode = WSAGetLastError();
+		log_fatal("send failed with error code:\t%d", errorCode);
+		closesocket(*hTargetSocket);
+		WSACleanup();
+		return errorCode;
+	}
+	log_debug("bytes to send:\t%d", sendBufferLength);
+	log_debug("bytes send:\t%d", response);
+
+	return 0;
+}
+
+int SocketDisconnect(SOCKET *hTargetSocket)
+{
+
+}
+
 int main()
 {
 	// Set global app logger.
@@ -116,6 +139,7 @@ int main()
 
 	const char sendBuffer[] = "HTTP/1.1 200 Okay\r\nContent-Type: text/html; charset=ISO-8859-1 \r\n\r\n"
 	                          "<h1>HelloWorld!</h1><p>Adam Pelc</p>";
+	int sendBufferSize = sizeof(sendBuffer) / sizeof(sendBuffer[0]);
 
 	SOCKET clientSocket = INVALID_SOCKET;
 	//! Server socket
@@ -148,20 +172,12 @@ int main()
 			exit(EXIT_FAILURE);
 		}
 
-		int sendBufferSize = sizeof(sendBuffer) / sizeof(sendBuffer[0]);
-		result = send(clientSocket, sendBuffer, sendBufferSize, 0);
-		if (result == SOCKET_ERROR)
+		if (SocketSend(&clientSocket, sendBuffer, sendBufferSize) != 0)
 		{
-			log_fatal("send failed with error code:\t%d", WSAGetLastError());
-			closesocket(clientSocket);
-			closesocket(serverSocket);
-			WSACleanup();
 			exit(EXIT_FAILURE);
 		}
-		log_debug("bytes to send:\t%d", sendBufferSize);
-		log_debug("bytes send:\t%d", result);
 
-		// Disconnects client
+		// Disconnects client socket from server
 		result = shutdown(clientSocket, SD_SEND);
 		if (result == SOCKET_ERROR)
 		{
