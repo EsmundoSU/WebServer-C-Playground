@@ -4,65 +4,6 @@
 #include "socket.h"
 #include "logger.h"
 
-static const char * const TEST_DEFAULT_PORT = "8080";
-
-static int SocketCreate(SOCKET *hSocket)
-{
-	// API Calls response;
-	int apiResponse;
-	// Server socket address info.
-	struct addrinfo *serverSocketAddressInfo = NULL;
-	// Server socket address hints for API.
-	struct addrinfo serverSocketAddressInfoHints;
-
-	// Setup serverSocketAddressInfoHints to give hints to API how to set up socket address structure.
-	ZeroMemory(&serverSocketAddressInfoHints, sizeof(serverSocketAddressInfoHints));
-	serverSocketAddressInfoHints.ai_family = AF_INET; // IPv4
-	serverSocketAddressInfoHints.ai_socktype = SOCK_STREAM; // TCP
-	serverSocketAddressInfoHints.ai_protocol = IPPROTO_TCP; // TCP
-	serverSocketAddressInfoHints.ai_flags = AI_PASSIVE;
-
-	// Gets struct with information about socket connection.
-	apiResponse = getaddrinfo(NULL, TEST_DEFAULT_PORT, &serverSocketAddressInfoHints, &serverSocketAddressInfo);
-	if (apiResponse != 0)
-	{
-		log_fatal("\"getaddrinfo\" failed with error code:\t%d", apiResponse);
-		WSACleanup();
-		return apiResponse;
-	}
-	log_debug("\"getaddrinfo\" - successful");
-
-	// Create server socket
-	*hSocket = socket(
-			serverSocketAddressInfo->ai_family,
-			serverSocketAddressInfo->ai_socktype,
-			serverSocketAddressInfo->ai_protocol);
-	if (*hSocket == INVALID_SOCKET)
-	{
-		int errorCode = WSAGetLastError();
-		log_fatal("Error at socket(): %ld\n", errorCode);
-		freeaddrinfo(serverSocketAddressInfo);
-		WSACleanup();
-		return errorCode;
-	}
-	log_debug("create server socket - successful");
-
-	// Bind server socket to address
-	apiResponse = bind(*hSocket, serverSocketAddressInfo->ai_addr, (int)serverSocketAddressInfo->ai_addrlen);
-	if (apiResponse == SOCKET_ERROR)
-	{
-		log_fatal("bind failed with error code:\t%d", apiResponse);
-		freeaddrinfo(serverSocketAddressInfo);
-		closesocket(*hSocket);
-		WSACleanup();
-		return apiResponse;
-	}
-	log_debug("bind - successful");
-	freeaddrinfo(serverSocketAddressInfo);
-
-	return apiResponse;
-}
-
 int SocketListen(const SOCKET *hSocket)
 {
 	if (listen(*hSocket, SOMAXCONN) == SOCKET_ERROR)
@@ -142,14 +83,8 @@ int main()
 	//! Server socket
 	SOCKET serverSocket = INVALID_SOCKET;
 
-	// Initialize Socket API
-	if (SocketStart() != 0)
-	{
-		exit(EXIT_FAILURE);
-	}
-
-	// Create new server socket
-	if (SocketCreate(&serverSocket) != 0)
+	// Initialize Socket API && Create ne server socket.
+	if (SocketStart(&serverSocket) != 0)
 	{
 		exit(EXIT_FAILURE);
 	}
