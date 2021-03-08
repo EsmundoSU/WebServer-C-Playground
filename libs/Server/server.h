@@ -1,5 +1,7 @@
+#include <stdbool.h>
 #include "include/server_errors.h"
 #include "include/server_defaults.h"
+#include "include/server_options.h"
 
 #ifndef WEBSERVER_C_PLAYGROUND_SERVER_H
 #define WEBSERVER_C_PLAYGROUND_SERVER_H
@@ -11,15 +13,18 @@
 //! @details Use ServerConfigurationDefault as base struct.
 struct ServerConfiguration
 {
-	//! Listening port.
+	//! Listening port. (ex. "8080")
 	const char *pPort;
+	//! Path for index.html
+	const char *indexPath;
 };
 typedef struct ServerConfiguration ServerConfiguration;
 extern ServerConfiguration ServerConfigurationDefault;
+
 //! @brief Starts HTTP Server
 //! @return OK - Successful, #ServerError if not.
-ServerError StartServer(ServerConfiguration serverConfiguration);
+int ServerStart();
 
-int ReceiveData(void* buffer, size_t length);
+int ServerRun();
 
 #endif //WEBSERVER_C_PLAYGROUND_SERVER_H
