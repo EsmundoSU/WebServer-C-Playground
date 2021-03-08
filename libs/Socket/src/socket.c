@@ -81,12 +81,11 @@ int SocketSend(const SOCKET *hTargetSocket, const char* sendBuffer, int sendBuff
 int SocketClose(const SOCKET *hTargetSocket)
 {
 	// Disconnects client socket from server
-	int response = shutdown(*hTargetSocket, SD_SEND);
+	int response = closesocket(*hTargetSocket);
 	if (response == SOCKET_ERROR)
 	{
 		int errorCode = WSAGetLastError();
-		log_fatal("shutdown failed with error code:\t%d", errorCode);
-		closesocket(*hTargetSocket);
+		log_fatal("Socket Close failed with error code:\t%d", errorCode);
 		WSACleanup();
 		return errorCode;
 	}

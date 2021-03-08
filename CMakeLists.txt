@@ -13,6 +13,7 @@ include_directories(libs/Logger)
 # Server staff include directory
 include_directories(libs/Server)
 include_directories(libs/Socket)
+include_directories(libs/Http)
 
 configure_file(html/index.html index.html COPYONLY)
 

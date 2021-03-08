@@ -3,16 +3,26 @@
 #include "server.h"
 #include "logger.h"
 #include "socket.h"
+#include "http.h"
+#include "include/server_configuration.h"
 
-//! Client socket handle.
-static SOCKET clientSocketHandle;
 //! Server socket handle.
 static SOCKET serverSocketHandle;
+//! Client socket handle.
+static SOCKET clientSocketHandle;
+//! Receive buffer for client socket data.
+static char clientSocketReceiveBuffer[SERVER_RECEIVE_BUFFER_SIZE];
+
+//! @brief Reads data from client socket and tries to parse it.
+//! @param parsedData Parsed data from client connection
+static int ParseReceivedData();
 
 int ServerInitialization()
 {
 	clientSocketHandle = INVALID_SOCKET;
 	serverSocketHandle = INVALID_SOCKET;
+	ZeroMemory(clientSocketReceiveBuffer, sizeof(clientSocketReceiveBuffer));
+
 
 	return SocketInitialize();
 }
@@ -34,6 +44,8 @@ void ServerRun()
 			exit(EXIT_FAILURE);
 		}
 
+		(void)ParseReceivedData(NULL);
+
 		FILE *pFile;
 		pFile = fopen("index.html", "r");
 		if (pFile == NULL)
@@ -48,11 +60,6 @@ void ServerRun()
 		char *fileData = malloc(fileSize);
 		fread(fileData, 1, fileSize, pFile);
 		fclose(pFile);
-
-		char recvBuffer[512];
-		ZeroMemory(recvBuffer, sizeof(recvBuffer));
-		recv(clientSocketHandle, recvBuffer, sizeof(recvBuffer), 0);
-		printf("%s\n", recvBuffer);
 
 		// Send Headers
 		if (SocketSend(&clientSocketHandle, header, headerSize) != 0)
@@ -71,5 +78,19 @@ void ServerRun()
 		{
 			exit(EXIT_FAILURE);
 		}
+
+		// Clear receive data.
+		ZeroMemory(clientSocketReceiveBuffer, sizeof(clientSocketReceiveBuffer));
 	}
+}
+
+static int ParseReceivedData()
+{
+	recv(clientSocketHandle, clientSocketReceiveBuffer, sizeof(clientSocketReceiveBuffer), 0);
+	printf("%s\n", clientSocketReceiveBuffer);
+
+	//! @todo Implement parsing received data to HttpMessage.
+	//if(strstr(clientSocketReceiveBuffer, HTTP_GET);
+
+	return 0;
 }
