@@ -1,47 +1,96 @@
 #include <ws2tcpip.h>
 #include "socket.h"
-#include "include/socket_errors.h"
 #include "logger.h"
 
-//! Default socket port.
+//! Default socket port used by library.
 static const char * const DEFAULT_SOCKET_PORT = "8080";
-//! Default IP version.
-static const int DEFAULT_SOCKET_IP_VERSION = 4;
-//! Default transport protocol.
-static const TransportProtocol DEFAULT_SOCKET_TRANSPORT_PROTOCOL = TCP;
 
-//! Initialize Socket API for this process.
+//! @brief Initialize Socket API for this process.
+//! @return 0 if successful, else socket error code.
 static int SocketApiInitialize();
-//! Create new socket for server to listen for requests.
+//! @brief Create new socket for server to listen for requests.
+//! @param hSocket Handle for server socket.
+//! @return 0 if successful, else socket error code.
 static int SocketServerCreate(SOCKET *hSocket);
+//! @brief Listen for data on socket.
+//! @param hSocket Handle for socket to listen on.
+//! @return 0 if successful, else socket error code.
+static int SocketListen(const SOCKET *hSocket);
 
-Socket SocketGetDefaultHandle(void)
+int SocketInitialize()
 {
-	Socket defaultSocket;
-	defaultSocket.port = DEFAULT_SOCKET_PORT;
-	defaultSocket.ipVersion = DEFAULT_SOCKET_IP_VERSION;
-	defaultSocket.transportProtocol = DEFAULT_SOCKET_TRANSPORT_PROTOCOL;
-
-	// Windows only
-	defaultSocket.winSocketAddressInformation = NULL;
-
-	return defaultSocket;
-}
-
-int SocketStart(SOCKET *hSocket)
-{
-	// Initialize Socket
 	int response = SocketApiInitialize();
 	if (response != 0)
 	{
 		return response;
 	}
 
-	response = SocketServerCreate(hSocket);
+	return 0;
+}
+
+int SocketServerStart(SOCKET *hSocket)
+{
+	int response = SocketServerCreate(hSocket);
 	if (response != 0)
 	{
 		return response;
 	}
+
+	response = SocketListen(hSocket);
+	if (response != 0)
+	{
+		return response;
+	}
+
+	return 0;
+}
+
+int SocketWaitForConnection(const SOCKET *hListeningSocket, SOCKET *hClientSocket)
+{
+	*hClientSocket = accept(*hListeningSocket, NULL, NULL);
+	if (*hClientSocket == INVALID_SOCKET)
+	{
+		int errorCode = WSAGetLastError();
+		log_fatal("\"accept\" failed with error code:\t%d", errorCode);
+		closesocket(*hListeningSocket);
+		WSACleanup();
+		return errorCode;
+	}
+
+	log_debug("accept- successful");
+	return 0;
+}
+
+int SocketSend(const SOCKET *hTargetSocket, const char* sendBuffer, int sendBufferLength)
+{
+	int response = send(*hTargetSocket, sendBuffer, sendBufferLength, 0);
+	if (response == SOCKET_ERROR)
+	{
+		int errorCode = WSAGetLastError();
+		log_fatal("send failed with error code:\t%d", errorCode);
+		closesocket(*hTargetSocket);
+		WSACleanup();
+		return errorCode;
+	}
+	log_debug("bytes to send:\t%d", sendBufferLength);
+	log_debug("bytes send:\t%d", response);
+
+	return 0;
+}
+
+int SocketClose(const SOCKET *hTargetSocket)
+{
+	// Disconnects client socket from server
+	int response = shutdown(*hTargetSocket, SD_SEND);
+	if (response == SOCKET_ERROR)
+	{
+		int errorCode = WSAGetLastError();
+		log_fatal("shutdown failed with error code:\t%d", errorCode);
+		closesocket(*hTargetSocket);
+		WSACleanup();
+		return errorCode;
+	}
+	log_debug("Client socket disconnected");
 
 	return 0;
 }
@@ -119,4 +168,19 @@ static int SocketServerCreate(SOCKET *hSocket)
 	freeaddrinfo(serverSocketAddressInfo);
 
 	return apiResponse;
+}
+
+static int SocketListen(const SOCKET *hSocket)
+{
+	if (listen(*hSocket, SOMAXCONN) == SOCKET_ERROR)
+	{
+		int error = WSAGetLastError();
+		log_fatal("\"listen\" failed with error code:\t%d", error);
+		closesocket(*hSocket);
+		WSACleanup();
+		return error;
+	}
+	log_debug("listen - successful");
+
+	return 0;
 }
