@@ -22,7 +22,8 @@ SET(CMAKE_C_FLAGS "-Ofast -Wall -Wextra -Wpedantic -Werror -Wno-unknown-pragmas"
 add_executable(trick-webserver
         core/src/main.c
         libs/Logger/src/logger.c
-        libs/Socket/src/socket.c)
+        libs/Socket/src/socket.c
+        libs/Server/src/server.c)
 if(WIN32)
     target_link_libraries(trick-webserver wsock32 ws2_32)
 endif()
