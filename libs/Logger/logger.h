@@ -1,6 +1,9 @@
 // Created by Adam Pelc on 22/02/2021.
 // Based on: https://github.com/rxi/log.c
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+#pragma ide diagnostic ignored "OCUnusedMacroInspection"
 #ifndef WEBSERVER_C_PLAYGROUND_LOGGER_H
 #define WEBSERVER_C_PLAYGROUND_LOGGER_H
 
@@ -23,12 +26,12 @@ typedef enum
 	LOG_DISABLE,
 }LoggerEnable;
 
-#define log_trace(...) log_base(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__);
-#define log_debug(...) log_base(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__);
-#define log_info(...) log_base(LOG_INFO, __FILE__, __LINE__, __VA_ARGS__);
-#define log_warning(...) log_base(LOG_WARNING, __FILE__, __LINE__, __VA_ARGS__);
-#define log_error(...) log_base(LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__);
-#define log_fatal(...) log_base(LOG_FATAL, __FILE__, __LINE__, __VA_ARGS__);
+#define log_trace(...) log_base(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
+#define log_debug(...) log_base(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
+#define log_info(...) log_base(LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
+#define log_warning(...) log_base(LOG_WARNING, __FILE__, __LINE__, __VA_ARGS__)
+#define log_error(...) log_base(LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
+#define log_fatal(...) log_base(LOG_FATAL, __FILE__, __LINE__, __VA_ARGS__)
 
 //! @brief Base method for logging data.
 //! @param loggerLevel Sets global logger level.
@@ -47,3 +50,5 @@ void log_set_level(LoggerLevel loggerLevel);
 void log_enable(LoggerEnable loggerEnable);
 
 #endif
+
+#pragma clang diagnostic pop

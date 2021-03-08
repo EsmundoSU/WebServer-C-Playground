@@ -17,7 +17,7 @@ include_directories(libs/Socket)
 configure_file(html/index.html index.html COPYONLY)
 
 # C Compiler flags
-SET(CMAKE_C_FLAGS "-Ofast -Wall -Wextra -Wpedantic")
+SET(CMAKE_C_FLAGS "-Ofast -Wall -Wextra -Wpedantic -Werror -Wno-unknown-pragmas")
 
 add_executable(trick-webserver
         core/src/main.c
