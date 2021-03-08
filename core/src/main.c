@@ -1,24 +1,10 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
-#include "server.h"
+#include "socket.h"
 #include "logger.h"
 
 static const char * const TEST_DEFAULT_PORT = "8080";
-
-static int SocketApiInitialize()
-{
-	//! Windows Socket Data
-	WSADATA windowsSocketData;
-	int result = WSAStartup(MAKEWORD(2,2), &windowsSocketData);
-	if (result != 0)
-	{
-		log_fatal("WSAStartup failed with error code:\t%d", result);
-		return result;
-	}
-	log_debug("Socket API init - successful");
-	return 0;
-}
 
 static int SocketCreate(SOCKET *hSocket)
 {
@@ -110,7 +96,6 @@ int SocketWaitForConnection(const SOCKET *hListeningSocket, SOCKET *hClientSocke
 
 int SocketSend(const SOCKET *hTargetSocket, const char* sendBuffer, int sendBufferLength)
 {
-
 	int response = send(*hTargetSocket, sendBuffer, sendBufferLength, 0);
 	if (response == SOCKET_ERROR)
 	{
@@ -158,7 +143,7 @@ int main()
 	SOCKET serverSocket = INVALID_SOCKET;
 
 	// Initialize Socket API
-	if (SocketApiInitialize() != 0)
+	if (SocketStart() != 0)
 	{
 		exit(EXIT_FAILURE);
 	}
@@ -200,11 +185,18 @@ int main()
 		fread(fileData, 1, fileSize, pFile);
 		fclose(pFile);
 
+		char recvBuffer[512];
+		ZeroMemory(recvBuffer, sizeof(recvBuffer));
+		recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
+		printf("%s\n", recvBuffer);
+
+		// Send Headers
 		if (SocketSend(&clientSocket, header, headerSize) != 0)
 		{
 			exit(EXIT_FAILURE);
 		}
 
+		// Send file data.
 		if (SocketSend(&clientSocket, fileData, fileSize) != 0)
 		{
 			exit(EXIT_FAILURE);

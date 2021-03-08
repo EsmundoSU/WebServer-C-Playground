@@ -10,16 +10,8 @@ static const int DEFAULT_SOCKET_IP_VERSION = 4;
 //! Default transport protocol.
 static const TransportProtocol DEFAULT_SOCKET_TRANSPORT_PROTOCOL = TCP;
 
-//! Initialize socket for communication.
-static int SocketInitialization();
-//! Gets address info for socket.
-static int SocketGetAddressInfo(Socket *hSocket);
-//! Gets platform connection socket
-static int SocketCreate(Socket *hSocket);
-//! Binds socket
-static int SocketBind(Socket *hSocket);
-//! Listen on the socket
-static int SocketListen(Socket *hSocket);
+//! Initialize Socket API for this process.
+static int SocketApiInitialize();
 
 Socket SocketGetDefaultHandle(void)
 {
@@ -34,47 +26,30 @@ Socket SocketGetDefaultHandle(void)
 	return defaultSocket;
 }
 
-int SocketStart(Socket *hSocket)
+int SocketStart()
 {
 	// Initialize Socket
-	int response = SocketInitialization(hSocket);
+	int response = SocketApiInitialize();
 	if (response != SocketOk)
 	{
 		return SocketErrorInitialization;
 	}
 
-	// Gets information about the socket.
-	response = SocketGetAddressInfo(hSocket);
-	if (response != SocketOk)
-	{
-		return SocketErrorAddressData;
-	}
-
-	// Create server socket
-	response = SocketCreate(hSocket);
-	if (response != SocketOk)
-	{
-		return SocketErrorCreation;
-	}
-
-	// Bind server socket
-	response = SocketBind(hSocket);
-	if (response != SocketOk)
-	{
-		return SocketErrorBinding;
-	}
-
 	return 0;
 }
 
-static int SocketInitialization()
+static int SocketApiInitialize()
 {
-	//! Socket information type.
-	WSADATA socketInformation;
-	// Gets socket information.
-	int response = WSAStartup(MAKEWORD(2,2), &socketInformation);
-
-	return response;
+	//! Windows Socket Data
+	WSADATA windowsSocketData;
+	int result = WSAStartup(MAKEWORD(2,2), &windowsSocketData);
+	if (result != 0)
+	{
+		log_fatal("WSAStartup failed with error code:\t%d", result);
+		return result;
+	}
+	log_debug("Socket API init - successful");
+	return 0;
 }
 
 static int SocketGetAddressInfo(Socket *hSocket)

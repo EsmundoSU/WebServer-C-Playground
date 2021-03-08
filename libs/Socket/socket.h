@@ -24,6 +24,6 @@ typedef struct Socket Socket;
 //! @return Socket Handle.
 Socket SocketGetDefaultHandle(void);
 
-int SocketStart(Socket *hSocket);
+int SocketStart();
 
 #endif //WEBSERVER_C_PLAYGROUND_SOCKET_H
