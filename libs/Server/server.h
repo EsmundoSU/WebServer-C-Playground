@@ -11,4 +11,4 @@ int ServerStart();
 //! @brief (Noreturn) Continuous listening and responding.
 void ServerRun();
 
-#endif //WEBSERVER_C_PLAYGROUND_SERVER_H
+#endif // WEBSERVER_C_PLAYGROUND_SERVER_H

@@ -10,21 +10,19 @@
 #include <stdbool.h>
 
 //! @brief Available logging levels.
-typedef enum
-{
-	LOG_TRACE,
-	LOG_DEBUG,
-	LOG_INFO,
-	LOG_WARNING,
-	LOG_ERROR,
-	LOG_FATAL,
-}LoggerLevel;
+typedef enum {
+  LOG_TRACE,
+  LOG_DEBUG,
+  LOG_INFO,
+  LOG_WARNING,
+  LOG_ERROR,
+  LOG_FATAL,
+} LoggerLevel;
 
-typedef enum
-{
-	LOG_ENABLE,
-	LOG_DISABLE,
-}LoggerEnable;
+typedef enum {
+  LOG_ENABLE,
+  LOG_DISABLE,
+} LoggerEnable;
 
 #define log_trace(...) log_base(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
 #define log_debug(...) log_base(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
@@ -39,7 +37,8 @@ typedef enum
 //! @param fileLine of line in file triggering logging.
 //! @param format output string.
 //! @param ... format arguments.
-void log_base(LoggerLevel loggerLevel, const char *fileName, int fileLine, const char* format, ...);
+void log_base(LoggerLevel loggerLevel, const char *fileName, int fileLine,
+              const char *format, ...);
 
 //! @brief Sets global logger level.
 //! @param loggerLevel logger level.
