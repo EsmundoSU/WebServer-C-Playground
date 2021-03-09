@@ -12,7 +12,3 @@ add_compile_options(-Wno-unknown-pragmas)
 add_subdirectory(libs)
 add_subdirectory(core)
 
-message("C compiler flags: ${CMAKE_C_FLAGS_DEBUG}")
-
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
