@@ -1,6 +1,7 @@
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include "socket.h"
 #include "logger.h"
-#include <ws2tcpip.h>
 
 //! Default socket port used by library.
 static const char *const DEFAULT_SOCKET_PORT = "8080";
