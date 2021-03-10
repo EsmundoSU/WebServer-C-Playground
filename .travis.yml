@@ -5,6 +5,7 @@ compiler: gcc
 os: windows
 
 script:
-  - mkdir Debug
-  - cmake -DCODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
-  - cmake --bulid . --config Debug
+  - mkdir cmake-test
+  - cd cmake-test
+  - cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" ..
+  - cmake --bulid .

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-project(WebServer_C_Playground C)
+project(WebServer_C_Playground)
 
 set(CMAKE_C_STANDARD 99)
 
