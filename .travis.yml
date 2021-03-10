@@ -4,4 +4,4 @@ language: c
 
 script:
   - cmake .
-  - cmake --bulid . -- -j 2
+  - cmake --bulid . -- -j2
