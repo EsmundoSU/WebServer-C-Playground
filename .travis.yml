@@ -1,7 +1,9 @@
 dist: trusty
 sudo: false
 language: c
+compiler: gcc
+os: windows
 
 script:
-  - cmake .
-  - cmake --bulid . -- -j2
+  - cmake -DCODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug
+  - cmake --bulid . --config Debug
