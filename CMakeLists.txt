@@ -11,4 +11,5 @@ add_compile_options(-Wno-unknown-pragmas)
 # Add C libs/exe
 add_subdirectory(libs)
 add_subdirectory(core)
+add_subdirectory(google_test)
 
