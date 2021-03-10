@@ -1,0 +1,7 @@
+dist: trusty
+sudo: false
+language: c
+
+script:
+  - cmake .
+  - cmake --bulid . -- -j2
