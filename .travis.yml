@@ -1,7 +1,11 @@
 dist: trusty
 sudo: false
 language: c
+compiler: gcc
+os: windows
 
 script:
-  - cmake .
-  - cmake --bulid . -- -j2
+  - mkdir cmake-test
+  - cd cmake-test
+  - cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" ..
+  - cmake --bulid .
