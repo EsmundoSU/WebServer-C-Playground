@@ -3,6 +3,7 @@ add_executable(trick-webserver src/main.c)
 target_link_libraries(trick-webserver PRIVATE http)
 target_link_libraries(trick-webserver PRIVATE logger)
 target_link_libraries(trick-webserver PRIVATE server)
+target_link_libraries(trick-webserver PRIVATE socket)
 
 # Copy test HTML files to app directory.
 add_custom_command(TARGET trick-webserver PRE_BUILD COMMAND
