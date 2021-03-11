@@ -1,10 +1,10 @@
+#include <stdio.h>
+#include <winsock2.h>
 #include "server.h"
 #include "http.h"
 #include "include/server_configuration.h"
 #include "logger.h"
 #include "socket.h"
-#include <stdio.h>
-#include <winsock2.h>
 
 //! Server socket handle.
 static SOCKET serverSocketHandle;
@@ -75,12 +75,24 @@ void ServerRun() {
 }
 
 static int ParseReceivedData() {
-  recv(clientSocketHandle, clientSocketReceiveBuffer,
-       sizeof(clientSocketReceiveBuffer), 0);
+  int receiveSize = recv(clientSocketHandle, clientSocketReceiveBuffer,
+                         sizeof(clientSocketReceiveBuffer), 0);
+
   printf("%s\n", clientSocketReceiveBuffer);
-
   //! @todo Implement parsing received data to HttpMessage.
-  // if(strstr(clientSocketReceiveBuffer, HTTP_GET);
 
-  return 0;
+  HttpMessage httpMessage;
+  int response =
+      HttpParseRequest(clientSocketReceiveBuffer, receiveSize, &httpMessage);
+
+  if (response != 0) {
+    log_error("Received unknown request");
+    return response;
+  }
+
+  if (httpMessage.httpRequestMethod == HttpRequestMethodGet) {
+    log_debug("Received GET request.");
+  }
+
+  return response;
 }
