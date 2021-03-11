@@ -14,6 +14,7 @@ HttpResponse HttpParseRequest(const char *dataBuffer, size_t dataBufferSize,
   // Parse request method from buffer.
   int response = ParseRequestMethod(dataBuffer, dataBufferSize, parsingPointer);
   if (response == HttpRequestMethodError) {
+    httpResponseMessage->httpRequestMethod = HttpRequestMethodError;
     return HttpNotSupportedRequestMethod;
   }
   httpResponseMessage->httpRequestMethod = (HttpRequestMethod)response;

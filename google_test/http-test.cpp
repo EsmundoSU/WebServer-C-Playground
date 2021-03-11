@@ -24,6 +24,8 @@ const char POST_REQUEST[] =
     "\n"
     "licenseID=string&content=string&/paramsXML=string";
 
+const char EMPTY_REQUEST[] ="";
+
 //! Test if parsing GET correctly.
 TEST(HttpLibraryTest, HttpParseRequest_GET) {
   // Arrange
@@ -59,7 +61,7 @@ TEST(HttpLibraryTest, HttpParseRequest_EmptyString){
 
   // Act
   HttpResponse response = HttpParseRequest(
-      nullptr, 0, &parsedMessage);
+      EMPTY_REQUEST, sizeof(EMPTY_REQUEST), &parsedMessage);
 
   // Assert
   ASSERT_TRUE((response == HttpNotSupportedRequestMethod)
