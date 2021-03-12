@@ -1,5 +1,7 @@
 sudo: false
 language: c
+compiler:
+  - gcc
 os:
   - linux
   - osx
