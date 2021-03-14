@@ -67,4 +67,8 @@ jobs:
       - run: ls
       - run: cmake -DCMAKE_BUILD_TYPE=Release
       - run: cmake --bulid .
+<<<<<<< HEAD
       - run: make>>>>>>> Updated github actions
+=======
+      - run: mingw32-make
+>>>>>>> Updated github actions
