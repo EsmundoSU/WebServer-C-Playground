@@ -1,51 +1,101 @@
 #include "http.h"
 #include <string.h>
 
-static HttpRequestMethod ParseRequestMethod(const char *dataBuffer,
-                                            size_t dataBufferSize,
-                                            const char *parsingPointer);
+//! @brief Parsing http request method from buffer.
+//! @param parsingPointer Pointer to exchange information with others functions
+//! where parsing was done.
+//! @param httpMessage is pointer to buffer storing parsed data.
+static HttpError ParseRequestMethod(const char **parsingPointer,
+                                    HttpMessage *httpMessage);
 
-HttpResponse HttpParseRequest(const char *dataBuffer, size_t dataBufferSize,
-                              HttpMessage *httpResponseMessage) {
+//! @brief Parsing http request path from buffer.
+//! @param parsingPointer Pointer to exchange information with others functions
+//! where parsing was done.
+//! @param httpMessage is pointer to buffer storing parsed data.
+static HttpError ParseRequestPath(const char **parsingPointer,
+                                  HttpMessage *httpMessage);
 
+HttpError HttpParseRequest(const char *dataBuffer, HttpMessage *httpMessage) {
   // This pointer is giving starting point to find proper data during parsing.
   const char *parsingPointer = dataBuffer;
 
   // Parse request method from buffer.
-  int response = ParseRequestMethod(dataBuffer, dataBufferSize, parsingPointer);
-  if (response == HttpRequestMethodError) {
-    httpResponseMessage->httpRequestMethod = HttpRequestMethodError;
-    return HttpNotSupportedRequestMethod;
+  HttpError httpError = ParseRequestMethod(&parsingPointer, httpMessage);
+  if (httpError != HttpOk) {
+    return httpError;
   }
-  httpResponseMessage->httpRequestMethod = (HttpRequestMethod)response;
 
-  return HttpOk;
+  // Parse request path
+  httpError = ParseRequestPath(&parsingPointer, httpMessage);
+  if (httpError != HttpOk) {
+    return httpError;
+  }
+  return httpError;
 }
 
-static HttpRequestMethod ParseRequestMethod(const char *dataBuffer,
-                                            size_t dataBufferSize,
-                                            const char *parsingPointer) {
-
-  size_t requestMethodLength = 0;
-  char currentChar = *parsingPointer;
-  while (currentChar != ' ' && currentChar != '\n' && currentChar != '\0') {
-    // If not detect invalid character add to length.
-    requestMethodLength++;
+static HttpError ParseRequestMethod(const char **parsingPointer,
+                                    HttpMessage *httpMessage) {
+  // Request method can have max size defined here.
+  const size_t maxRequestMethodLength = 10;
+  // Index of currently analyzed character.
+  size_t charIndex = 0;
+  // Currently analyzed character.
+  char charCurrent = (*parsingPointer)[charIndex];
+  while (charCurrent != ' ' && charCurrent != '\n' && charCurrent != '\0') {
+    charIndex++;
+    charCurrent = (*parsingPointer)[charIndex];
     // Check for buffer overflow
-    if (requestMethodLength > dataBufferSize) {
-      return HttpRequestMethodError;
+    if (charIndex >= maxRequestMethodLength) {
+      return HttpInvalidRequestFormat;
     }
-
-    // Go to next char in data buffer.
-    parsingPointer++;
-    // Dereference pointing char for while check.
-    currentChar = *parsingPointer;
   }
 
-  if ((requestMethodLength == HTTP_GET_SIZE) &&
-      (memcmp(dataBuffer, HTTP_GET, HTTP_GET_SIZE) == 0)) {
-    return HttpRequestMethodGet;
+  if ((charIndex == HTTP_GET_SIZE) &&
+      (memcmp(*parsingPointer, HTTP_GET, HTTP_GET_SIZE) == 0)) {
+    httpMessage->requestMethod = HttpRequestMethodGet;
+
+    // Move parsing pointer to new position.
+    *parsingPointer += charIndex;
+    return HttpOk;
   }
 
-  return HttpRequestMethodError;
+  if (charIndex == 0) {
+    return HttpInvalidRequestFormat;
+  }
+
+  return HttpNotSupportedRequestMethod;
+}
+
+static HttpError ParseRequestPath(const char **parsingPointer,
+                                  HttpMessage *httpMessage) {
+  // -1 byte to add null termination.
+  static const size_t maxLength = HTTP_MAX_PATH_LENGTH - 1;
+  // Index of currently analyzed character
+  size_t charIndex = 0;
+  // Currently analyzer character
+  char currentCharacter = (*parsingPointer)[charIndex];
+
+  // Before path should be an empty space.
+  if (currentCharacter != ' ') {
+    return HttpInvalidRequestFormat;
+  }
+
+  charIndex++;
+  currentCharacter = (*parsingPointer)[charIndex];
+  while (currentCharacter != ' ' && currentCharacter != '\n' &&
+         currentCharacter != '\0') {
+    // Check for buffer overflow
+    if (charIndex >= maxLength) {
+      return HttpRequestPathTooLong;
+    }
+    httpMessage->requestPath[charIndex - 1] = currentCharacter;
+
+    charIndex++;
+    currentCharacter = (*parsingPointer)[charIndex];
+  }
+  httpMessage->requestPath[charIndex - 1] = '\0';
+
+  // Move parsing pointer to new position.
+  *parsingPointer += charIndex;
+  return HttpOk;
 }

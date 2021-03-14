@@ -32,12 +32,12 @@ TEST(HttpLibraryTest, HttpParseRequest_GET) {
   HttpMessage parsedMessage;
 
   // Act
-  HttpResponse response = HttpParseRequest(
-     GET_REQUEST, sizeof(GET_REQUEST), &parsedMessage);
+  HttpError response = HttpParseRequest(GET_REQUEST, &parsedMessage);
 
   // Assert
-  ASSERT_TRUE((response == HttpOk)
-              && (parsedMessage.httpRequestMethod == HttpRequestMethodGet));
+  ASSERT_EQ(HttpOk, response);
+  ASSERT_EQ(HttpRequestMethodGet, parsedMessage.requestMethod);
+  ASSERT_STREQ("/hello.htm", parsedMessage.requestPath);
 }
 
 //! Test if throwing error when getting POST.
@@ -46,24 +46,21 @@ TEST(HttpLibraryTest, HttpParseRequest_POST) {
   HttpMessage parsedMessage;
 
   // Act
-  HttpResponse response = HttpParseRequest(
-      POST_REQUEST, sizeof(POST_REQUEST), &parsedMessage);
+  HttpError response = HttpParseRequest(POST_REQUEST, &parsedMessage);
 
   // Assert
-  ASSERT_TRUE(response == HttpNotSupportedRequestMethod);
-  ASSERT_TRUE(parsedMessage.httpRequestMethod == HttpRequestMethodError);
+  ASSERT_EQ(HttpNotSupportedRequestMethod, response);
 }
 
 //! Parse Empty string
-TEST(HttpLibraryTest, HttpParseRequest_EmptyString){
+TEST(HttpLibraryTest, HttpParseRequest_EmptyString) {
   // Arrange
   HttpMessage parsedMessage;
 
   // Act
-  HttpResponse response = HttpParseRequest(
-      EMPTY_REQUEST, sizeof(EMPTY_REQUEST), &parsedMessage);
+  HttpError response = HttpParseRequest(EMPTY_REQUEST, &parsedMessage);
 
   // Assert
-  ASSERT_TRUE((response == HttpNotSupportedRequestMethod)
-              && (parsedMessage.httpRequestMethod == HttpRequestMethodError));
+  ASSERT_EQ(HttpInvalidRequestFormat, response)
+      << "HttpError id:" << response << std::endl;
 }

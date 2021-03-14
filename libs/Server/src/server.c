@@ -93,7 +93,7 @@ static int ParseReceivedData() {
     return response;
   }
 
-  if (httpMessage.httpRequestMethod == HttpRequestMethodGet) {
+  if (httpMessage.requestMethod == HttpRequestMethodGet) {
     log_debug("Received GET request.");
   }
 
