@@ -78,22 +78,21 @@ void ServerRun() {
 }
 
 static int ParseReceivedData() {
-  int receiveSize = recv(clientSocketHandle, clientSocketReceiveBuffer,
-                         sizeof(clientSocketReceiveBuffer), 0);
+  recv(clientSocketHandle, clientSocketReceiveBuffer,
+       sizeof(clientSocketReceiveBuffer), 0);
 
   printf("%s\n", clientSocketReceiveBuffer);
   //! @todo Implement parsing received data to HttpMessage.
 
   HttpMessage httpMessage;
-  int response =
-      HttpParseRequest(clientSocketReceiveBuffer, receiveSize, &httpMessage);
+  int response = HttpParseRequest(clientSocketReceiveBuffer, &httpMessage);
 
   if (response != 0) {
     log_error("Received unknown request");
     return response;
   }
 
-  if (httpMessage.requestMethod == HttpRequestMethodGet) {
+  if (httpMessage.requestMethod == HTTP_GET) {
     log_debug("Received GET request.");
   }
 
