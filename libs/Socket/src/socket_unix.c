@@ -2,15 +2,9 @@
 #include "socket-unix.h"
 #include "socket.h"
 #include <errno.h>
-<<<<<<< HEAD
 #include <netdb.h>
 #include <string.h>
 #include <unistd.h>
-=======
-#include <string.h>
-#include <unistd.h>
-#include <uv.h>
->>>>>>> feat: Added unix compatibility for server.
 
 //! Default socket port used by library.
 static const in_port_t DEFAULT_SOCKET_PORT = 8080;
@@ -84,11 +78,7 @@ static int SocketServerCreate(SOCKET *hSocket) {
   struct sockaddr_in serv_addr;
 
   // Create server socket
-<<<<<<< HEAD
   *hSocket = socket(AF_INET, SOCK_STREAM, 0);
-=======
-  *hSocket = socket(AF_INET, SOCK_STREAM, SOL_TCP);
->>>>>>> feat: Added unix compatibility for server.
   if (*hSocket == INVALID_SOCKET) {
     log_fatal("Error at socket(). ID: %d\tMessage: %d", errno, strerror(errno));
     return errno;
