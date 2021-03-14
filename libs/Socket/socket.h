@@ -1,6 +1,13 @@
 #ifndef WEBSERVER_C_PLAYGROUND_SOCKET_H
 #define WEBSERVER_C_PLAYGROUND_SOCKET_H
-#include <winsock.h>
+#ifdef WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include "include/socket-unix.h"
+#include <sys/socket.h>
+#include <sys/types.h>
+#endif
 
 //! @brief Initialize usage of socket.
 //! @details Must be called once before socket usage.

@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <stddef.h>
 
 #ifndef WEBSERVER_C_PLAYGROUND_HTTP_REQUESTMETHOD_H
 #define WEBSERVER_C_PLAYGROUND_HTTP_REQUESTMETHOD_H

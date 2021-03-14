@@ -1,10 +1,10 @@
-#include <stdio.h>
-#include <winsock2.h>
 #include "server.h"
 #include "http.h"
 #include "include/server_configuration.h"
 #include "logger.h"
 #include "socket.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 //! Server socket handle.
 static SOCKET serverSocketHandle;
@@ -32,7 +32,7 @@ void ServerRun() {
                         "charset=ISO-8859-1 \r\n\r\n";
   const int headerSize = sizeof(header) / sizeof(header[0]);
 
-  while (TRUE) {
+  while (1) {
     if (SocketWaitForConnection(&serverSocketHandle, &clientSocketHandle) !=
         0) {
       exit(EXIT_FAILURE);
@@ -51,7 +51,10 @@ void ServerRun() {
     fseek(pFile, 0, SEEK_SET); /* same as rewind(pFile); */
 
     char *fileData = malloc(fileSize);
-    fread(fileData, 1, fileSize, pFile);
+    size_t result = fread(fileData, 1, fileSize, pFile);
+    if (result == 0) {
+      log_error("Empty file");
+    }
     fclose(pFile);
 
     // Send Headers

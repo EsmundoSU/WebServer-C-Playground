@@ -1,6 +1,7 @@
 #include "include/http-requestmethod.h"
 #include "include/http-response.h"
 #include <limits.h>
+#include <stddef.h>
 
 #ifndef WEBSERVER_C_PLAYGROUND_HTTP_H
 #define WEBSERVER_C_PLAYGROUND_HTTP_H
