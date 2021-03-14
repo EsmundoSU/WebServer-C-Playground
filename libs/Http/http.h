@@ -1,3 +1,4 @@
+//! Prepared according to https://tools.ietf.org/html/rfc2616
 #include "include/http-requestmethod.h"
 #include "include/http-response.h"
 #include <limits.h>
@@ -11,7 +12,7 @@
 
 //! Data structure representing HTTP message.
 typedef struct HttpMessage {
-  HttpRequestMethod requestMethod;
+  const char *requestMethod;
   char requestPath[HTTP_MAX_PATH_LENGTH];
 } HttpMessage;
 

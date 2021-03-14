@@ -36,7 +36,7 @@ TEST(HttpLibraryTest, HttpParseRequest_GET) {
 
   // Assert
   ASSERT_EQ(HttpOk, response);
-  ASSERT_EQ(HttpRequestMethodGet, parsedMessage.requestMethod);
+  ASSERT_STREQ(HTTP_GET, parsedMessage.requestMethod);
   ASSERT_STREQ("/hello.htm", parsedMessage.requestPath);
 }
 
@@ -49,7 +49,9 @@ TEST(HttpLibraryTest, HttpParseRequest_POST) {
   HttpError response = HttpParseRequest(POST_REQUEST, &parsedMessage);
 
   // Assert
-  ASSERT_EQ(HttpNotSupportedRequestMethod, response);
+  ASSERT_EQ(HttpOk, response);
+  ASSERT_STREQ(HTTP_POST, parsedMessage.requestMethod);
+  ASSERT_STREQ("/cgi-bin/process.cgi", parsedMessage.requestPath);
 }
 
 //! Parse Empty string
