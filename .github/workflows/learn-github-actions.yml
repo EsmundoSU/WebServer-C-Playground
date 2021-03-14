@@ -41,6 +41,7 @@ jobs:
       - run: mkdir build
       - run: cd build
       - run: ls ..
+      - run: ls
       - run: cmake -DCMAKE_BUILD_TYPE=Release ..
       - run: cmake --bulid .
       - run: make
@@ -50,6 +51,7 @@ jobs:
       - run: mkdir build
       - run: cd build
       - run: ls ..
+      - run: ls
       - run: cmake -DCMAKE_BUILD_TYPE=Release ..
       - run: cmake --bulid .
       - run: make
@@ -59,6 +61,7 @@ jobs:
       - run: mkdir build
       - run: cd build
       - run: ls ..
+      - run: ls
       - run: cmake -DCMAKE_BUILD_TYPE=Release ..
       - run: cmake --bulid .
       - run: make>>>>>>> Updated github actions
