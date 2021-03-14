@@ -4,6 +4,7 @@ jobs:
   build-on-ubuntu:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - run: mkdir build
       - run: cd build
       - run: ls ..
@@ -14,6 +15,7 @@ jobs:
   build-on-osx:
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v2
       - run: mkdir build
       - run: cd build
       - run: ls ..
@@ -24,6 +26,7 @@ jobs:
   build-on-windows:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v2
       - run: mkdir build
       - run: cd build
       - run: ls ..
