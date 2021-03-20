@@ -4,13 +4,13 @@ project(WebServer_C_Playground)
 set(CMAKE_C_STANDARD 99)
 
 # C Compiler Flags
-add_compile_options(-Wno-unknown-pragmas)
 if (MSVC)
-    # warning level 4 and all warnings as errors
-    add_compile_options(/W4 /WX)
+    # warning level 4 and
+    add_compile_options(/W4)
 else ()
     # lots of warnings and all warnings as errors
     add_compile_options(-Wall -Wextra -pedantic -Werror)
+    add_compile_options(-Wno-unknown-pragmas)
 endif ()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
