@@ -15,8 +15,10 @@ jobs:
       - name: Checkout this repository.
         uses: actions/checkout@v2
 
-      - name: Install minigw-64
+      - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
 
       - name: CMAKE creates build files.
         run: |
