@@ -15,10 +15,18 @@ jobs:
       - name: Checkout this repository.
         uses: actions/checkout@v2
 
+      - name: Install minigw-64
+        uses: egor-tensin/setup-mingw@v2
+
       - name: CMAKE creates build files.
         run: |
           mkdir out
-          cmake -S . -B ./out/ -DCMAKE_BUILD_TYPE=Release
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cmake -S . -B ./out/ -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - MinGW Makefiles"
+          else
+            cmake -S . -B ./out/ -DCMAKE_BUILD_TYPE=Release
+          fi
+
 
       - name: CMAKE build project.
         run: cmake --build ./out/
